@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "kr.co.hconnect.bluetoothlib_android"
+    namespace = "kr.co.hconnect.bluetoothlib"
     compileSdk = 34
 
     defaultConfig {

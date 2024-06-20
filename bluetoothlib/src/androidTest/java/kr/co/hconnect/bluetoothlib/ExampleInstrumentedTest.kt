@@ -1,4 +1,4 @@
-package kr.co.hconnect.bluetoothlib_android
+package kr.co.hconnect.bluetoothlib
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
