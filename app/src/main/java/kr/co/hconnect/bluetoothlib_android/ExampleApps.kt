@@ -1,7 +1,11 @@
 package kr.co.hconnect.bluetoothlib_android
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -10,11 +14,38 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import kr.co.hconnect.bluetoothlib.HCBle
+import kr.co.hconnect.bluetoothlib.Testmy
 import kr.co.hconnect.myapplication123.ui.theme.MyApplication123Theme
+import java.util.logging.Logger
 
 class ExampleApps: AppCompatActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                isGranted: Boolean ->
+                if (isGranted) {
+                    HCBle.init(this)
+                } else {
+                    Log.e("ExampleApps", "Permission denied")
+                }
+            }
+            requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN)
+            return
+        } else {
+            HCBle.init(this)
+        }
+
+
         setContent {
             MyApplication123Theme {
                 // A surface container using the 'background' color from the theme
