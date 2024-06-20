@@ -4,11 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "kr.co.hconnect.bluetoothlib_android"
+    val uniqueId = "kr.co.hconnect.bluetoothlib_android"
+
+    namespace = uniqueId
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "kr.co.hconnect.bluetoothlib_android"
+        applicationId = uniqueId
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -17,6 +19,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    println("")
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,10 +39,11 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(project(":bluetoothlib"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
