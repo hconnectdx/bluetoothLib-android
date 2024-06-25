@@ -1,13 +1,9 @@
 package kr.co.hconnect.bluetoothlib_android
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,44 +12,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kr.co.hconnect.bluetoothlib.HCBle
-import kr.co.hconnect.bluetoothlib.Testmy
-import kr.co.hconnect.bluetoothlib_android.theme.Permissions
-import kr.co.hconnect.myapplication123.ui.theme.MyApplication123Theme
-import java.util.logging.Logger
+import kr.co.hconnect.permissionlib.PermissionManager
+import kr.co.hconnect.myapplication123.ui.theme.MyApplicationTheme
 
 class ExampleApps : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApplication123Theme {
+            MyApplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    Greeting("블루투스 테스트 앱")
                     Button(onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            PermissionManager.launchPermissions(Permissions.PERMISSION_SDK_31.toTypedArray())
-                        } else {
-                            PermissionManager.launchPermissions(Permissions.PERMISSION_SDK_30.toTypedArray())
-                        }
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                            PermissionManager.launchPermissions(Permissions.PERMISSION_SDK_31.toTypedArray())
+//                        } else {
+//                            PermissionManager.launchPermissions(Permissions.PERMISSION_SDK_30.toTypedArray())
+//                        }
+                        HCBle.init(this@ExampleApps)
                     }) {
-                        Text("Check Permissions")
+                        Text("Scan Bluetooth Devices")
                     }
 
                 }
@@ -87,7 +72,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    MyApplication123Theme {
+    MyApplicationTheme {
         Greeting("Android")
     }
 }

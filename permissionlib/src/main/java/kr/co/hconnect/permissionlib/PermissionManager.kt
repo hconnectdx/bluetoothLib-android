@@ -1,4 +1,4 @@
-package kr.co.hconnect.bluetoothlib_android
+package kr.co.hconnect.permissionlib
 
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher

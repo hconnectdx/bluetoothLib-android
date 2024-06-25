@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "bluetoothlib_android"
 include(":app")
 include(":bluetoothlib")
+include(":permissionlib")
