@@ -3,16 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 이전 버전의 기기에서 레거시 블루투스 권한을 요청합니다.-->
-    <uses-permission android:name="android.permission.BLUETOOTH"
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
         android:maxSdkVersion="30" />
 
     <!-- 블루투스 장치를 찾는 경우에만 필요합니다.-->
     <!-- 앱이 블루투스 스캔 결과를 사용하여 물리적 위치 정보를 파생하지 않는 경우-->
     <!-- 앱이 물리적 위치를 파생하지 않는다고 단언할 수 있습니다.-->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
 
     <!-- 블루투스 장치가 다른 장치에서 검색할 수 있도록 만드는 경우에만 필요합니다.-->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
@@ -25,8 +28,9 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <!-- 앱이 저전력 블루투스를 사용하는 경우 다음을 사용할 수 있습니다.-->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
 
     <!-- 앱이 블루투스 스캔 결과를 사용하여 물리적 위치 정보를 파생하는 경우에만 필요합니다.-->
