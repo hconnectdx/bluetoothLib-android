@@ -7,10 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 object PermissionManager {
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var resultCallback: (permissions: Map<String, Boolean>) -> Unit
 
     fun registerPermissionLauncher(
-        activity: AppCompatActivity,
-        resultCallback: (permissions: Map<String, Boolean>) -> Unit,
+        activity: AppCompatActivity
     ) {
         permissionLauncher =
             activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -27,7 +27,11 @@ object PermissionManager {
             }
     }
 
-    fun launchPermissions(permissions: Array<String>) {
+    fun launchPermissions(
+        permissions: Array<String>,
+        resultCallback: (permissions: Map<String, Boolean>) -> Unit
+    ) {
+        this.resultCallback = resultCallback
         permissionLauncher.launch(permissions)
     }
 }
