@@ -241,7 +241,7 @@ fun GattServiceList(
                             IconButton(
                                 onClick = {
                                     HCBle.setCharacteristicNotification(true)
-                                    HCBle.readCharacteristic()
+
                                 }, modifier = Modifier.weight(1f)
                             ) {
                                 Icon(

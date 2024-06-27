@@ -31,8 +31,7 @@ object HCBle {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var bluetoothLeScanner: BluetoothLeScanner
-
-    lateinit var bluetoothGatt: BluetoothGatt
+    private lateinit var bluetoothGatt: BluetoothGatt
 
     private var scanning = false
     private val handler = Handler()
@@ -57,7 +56,6 @@ object HCBle {
         bluetoothManager = appContext.getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
         bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-        gettService = GATTService()
 
         Log.d(TAG, "BLE Initialized")
     }
@@ -200,6 +198,8 @@ object HCBle {
                 onReceive.invoke(characteristic!!)
             }
         })
+
+        gettService = GATTService(bluetoothGatt)
     }
 
     /**

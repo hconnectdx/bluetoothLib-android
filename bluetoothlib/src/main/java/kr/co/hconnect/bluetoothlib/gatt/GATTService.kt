@@ -10,13 +10,21 @@ import android.util.Log
 import kr.co.hconnect.bluetoothlib.HCBle
 
 @SuppressLint("MissingPermission")
-class GATTService {
+class GATTService(private val bluetoothGatt: BluetoothGatt) {
     private lateinit var gattServiceList: List<BluetoothGattService>
     private lateinit var selService: BluetoothGattService
     private lateinit var selCharacteristic: BluetoothGattCharacteristic
 
     fun getGattServiceList(): List<BluetoothGattService> {
-        return gattServiceList
+        try {
+            if (::gattServiceList.isInitialized.not()) {
+                Log.e("GATTService", "Service list is empty")
+            }
+            return gattServiceList
+        } catch (e: Exception) {
+            Log.e("GATTService", "${e.message}")
+            throw e
+        }
     }
 
     fun setGattServiceList(gattServiceList: List<BluetoothGattService>) {
@@ -24,30 +32,44 @@ class GATTService {
     }
 
     fun setServiceUUID(uuid: String) {
-        gattServiceList.find { it.uuid.toString() == uuid }?.let {
-            Log.d("GATTService", "Service UUID: $uuid")
-            selService = it
+        try {
+            if (::gattServiceList.isInitialized.not()) {
+                throw Exception("Service list is empty")
+            }
+            gattServiceList.find { it.uuid.toString() == uuid }?.let {
+                Log.d("GATTService", "Service UUID: $uuid")
+                selService = it
+            }
+        } catch (e: Exception) {
+            Log.e("GATTService", "${e.message}")
         }
 
     }
 
     fun setCharacteristicUUID(characteristicUUID: String) {
-        selService.characteristics.find { it.uuid.toString() == characteristicUUID }?.let {
-            Log.d("GATTService", "Characteristic UUID: $characteristicUUID")
-            selCharacteristic = it
+        try {
+            if (::selService.isInitialized.not()) {
+                throw Exception("Service is not initialized")
+            }
+            selService.characteristics.find { it.uuid.toString() == characteristicUUID }?.let {
+                Log.d("GATTService", "Characteristic UUID: $characteristicUUID")
+                selCharacteristic = it
+            }
+        } catch (e: Exception) {
+            Log.e("GATTService", "${e.message}")
         }
     }
 
     fun readCharacteristic() {
-        HCBle.bluetoothGatt.readCharacteristic(selCharacteristic)
+        bluetoothGatt.readCharacteristic(selCharacteristic)
     }
 
     fun writeCharacteristic(data: ByteArray) {
         selCharacteristic.value = data
-        HCBle.bluetoothGatt.writeCharacteristic(selCharacteristic)
+        bluetoothGatt.writeCharacteristic(selCharacteristic)
     }
 
     fun setCharacteristicNotification(isEnable: Boolean) {
-        HCBle.bluetoothGatt.setCharacteristicNotification(selCharacteristic, isEnable)
+        bluetoothGatt.setCharacteristicNotification(selCharacteristic, isEnable)
     }
 }
