@@ -1,4 +1,4 @@
-package kr.co.hconnect.bluetoothlib_android
+package kr.co.hconnect.bluetoothlib_android.model
 
 import android.Manifest
 import android.os.Build
