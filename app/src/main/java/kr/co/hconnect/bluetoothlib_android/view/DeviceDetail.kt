@@ -39,6 +39,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hconnect.bluetoothlib.HCBle
 import kr.co.hconnect.bluetoothlib.gatt.BLEState
 import kr.co.hconnect.bluetoothlib_android.R
@@ -90,8 +96,9 @@ private fun ConnectButton(scanViewModel: ScanListViewModel) {
                 BLEState.BOND_BONDED -> {
                     Log.d("GATTService", "Disconnect")
                     HCBle.disconnect {
-                        scanViewModel.connectState.intValue = BLEState.STATE_DISCONNECTED
                         scanViewModel.isBonded.intValue = BLEState.BOND_NONE
+                        scanViewModel.connectState.intValue = BLEState.STATE_DISCONNECTED
+                        scanViewModel.isGattConnected.intValue = BLEState.GATT_FAILURE
                     }
                 }
 
@@ -150,24 +157,53 @@ private fun connect(
 
 @Composable
 private fun BLEConnStateIcon(bondedState: Int, connState: Int) {
-    val painter = painter(bondedState, connState)
-    Image(painter = painter, contentDescription = "what?")
+
+    val state = BLEState.getBondedStateWithConnection(bondedState, connState)
+    when (state) {
+        BLEState.CONNECTED_BONDED -> {
+            ConnectedLottie()
+        }
+
+        BLEState.CONNECTING_BONDING -> {
+            LoadingLottie()
+        }
+
+        else -> {
+            Image(
+                painter = painterResource(id = R.drawable.ico_ble_off),
+                contentDescription = "state off"
+            )
+        }
+    }
 }
 
 @Composable
-private fun painter(
-    bondedState: Int,
-    connState: Int
-): Painter {
-    val state = BLEState.getBondedStateWithConnection(bondedState, connState)
-    val painter = when (state) {
-        BLEState.CONNECTED_BONDED -> painterResource(id = R.drawable.ico_ble_on)
-        BLEState.CONNECTING_BONDING -> painterResource(id = R.drawable.ico_ble_connecting)
-        else -> painterResource(id = R.drawable.ico_ble_off)
-    }
-    return painter
+private fun ConnectedLottie() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ble_on))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever,
+        clipSpec = LottieClipSpec.Progress(0f, 1f)
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+    )
 }
 
+@Composable
+private fun LoadingLottie() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_ble_loading))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever,
+        clipSpec = LottieClipSpec.Progress(0f, 1f)
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+    )
+}
 
 @Composable
 @Preview
