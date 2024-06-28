@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothProfile
+import android.os.Build
 import android.util.Log
 import kr.co.hconnect.bluetoothlib.HCBle
+import java.util.UUID
 
 @SuppressLint("MissingPermission")
 class GATTService(private val bluetoothGatt: BluetoothGatt) {
@@ -19,6 +22,7 @@ class GATTService(private val bluetoothGatt: BluetoothGatt) {
         try {
             if (::gattServiceList.isInitialized.not()) {
                 Log.e("GATTService", "Service list is empty")
+                throw Exception("Service list is empty")
             }
             return gattServiceList
         } catch (e: Exception) {
@@ -65,11 +69,42 @@ class GATTService(private val bluetoothGatt: BluetoothGatt) {
     }
 
     fun writeCharacteristic(data: ByteArray) {
-        selCharacteristic.value = data
-        bluetoothGatt.writeCharacteristic(selCharacteristic)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33 이상
+            bluetoothGatt.writeCharacteristic(
+                selCharacteristic,
+                data,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            )
+        } else { // API 32 이하
+            selCharacteristic.value = data
+            bluetoothGatt.writeCharacteristic(selCharacteristic)
+        }
     }
 
     fun setCharacteristicNotification(isEnable: Boolean) {
         bluetoothGatt.setCharacteristicNotification(selCharacteristic, isEnable)
+        val descriptor =
+            selCharacteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33 이상
+            if (isEnable) {
+                bluetoothGatt.writeDescriptor(
+                    descriptor,
+                    BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                )
+            } else {
+                bluetoothGatt.writeDescriptor(
+                    descriptor,
+                    BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                )
+            }
+        } else { // API 32 이하
+            if (isEnable) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            } else {
+                descriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+            }
+            bluetoothGatt.writeDescriptor(descriptor)
+        }
     }
 }

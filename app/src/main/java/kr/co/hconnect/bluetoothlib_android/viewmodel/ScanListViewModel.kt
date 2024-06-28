@@ -13,4 +13,5 @@ class ScanListViewModel : ViewModel() {
     var selDevice = mutableStateOf<ScanResult?>(null)
     var connectState = mutableIntStateOf(BluetoothProfile.STATE_DISCONNECTED)
     var isBonded = mutableIntStateOf(BLEState.BOND_NONE)
+    var isGattConnected = mutableIntStateOf(BLEState.GATT_FAILURE)
 }

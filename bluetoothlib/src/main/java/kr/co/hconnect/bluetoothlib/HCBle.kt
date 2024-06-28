@@ -135,7 +135,7 @@ object HCBle {
                     Log.d(TAG, "Connected to GATT server.")
                     Log.d(
                         TAG_GATT_SERVICE,
-                        "Attempting to start service discovery: " + HCBle.bluetoothGatt.discoverServices()
+                        "Attempting to start service discovery: " + bluetoothGatt.discoverServices()
                     )
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.d(TAG_GATT_SERVICE, "${newState}")
@@ -152,6 +152,7 @@ object HCBle {
 
                     gatt?.services?.let {
                         gettService.setGattServiceList(it)
+
                     } ?: run {
                         Log.e(TAG_GATT_SERVICE, "onServicesDiscovered: gatt.services is null")
                     }

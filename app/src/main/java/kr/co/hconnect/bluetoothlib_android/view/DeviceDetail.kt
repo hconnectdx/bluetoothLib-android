@@ -46,7 +46,10 @@ import kr.co.hconnect.bluetoothlib_android.viewmodel.ScanListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeviceDetailScreen(navController: NavController, scanViewModel: ScanListViewModel = viewModel()) {
+fun DeviceDetailScreen(
+    navController: NavController,
+    scanViewModel: ScanListViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -134,9 +137,10 @@ private fun connect(
         },
         onGattServiceState = { it ->
             Log.d("GATTService", "onGattServiceState: $it")
+            scanViewModel.isGattConnected.intValue = it
         },
         onBondState = { bondedState ->
-            scanViewModel.isBonded.value = bondedState
+            scanViewModel.isBonded.intValue = bondedState
         },
         onReceive = { data ->
             Log.d("GATTService", "onReceive: ${data.value}")
@@ -192,7 +196,9 @@ fun DeviceDetailContent(scanViewModel: ScanListViewModel = viewModel()) {
 
         HorizontalDivider(Modifier.padding(16.dp))
 
-        if (scanViewModel.connectState.intValue == BluetoothProfile.STATE_CONNECTED) {
+        if (scanViewModel.isBonded.intValue == BLEState.BOND_BONDED &&
+            scanViewModel.isGattConnected.intValue == BLEState.GATT_SUCCESS
+        ) {
             GattServiceList(HCBle.getGattServiceList())
         }
     }
