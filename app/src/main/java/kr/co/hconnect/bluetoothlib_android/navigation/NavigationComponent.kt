@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kr.co.hconnect.bluetoothlib_android.view.characteristic_detail.CharacteristicDetail
 import kr.co.hconnect.bluetoothlib_android.view.DeviceDetailScreen
 import kr.co.hconnect.bluetoothlib_android.view.main.HomeScreen
 import kr.co.hconnect.bluetoothlib_android.viewmodel.ScanListViewModel
@@ -21,6 +22,9 @@ fun NavigationComponent() {
         }
         composable("detail") {
             DeviceDetailScreen(navController, scanViewModel)
+        }
+        composable("characteristicDetail") {
+            CharacteristicDetail(navController)
         }
     }
 }

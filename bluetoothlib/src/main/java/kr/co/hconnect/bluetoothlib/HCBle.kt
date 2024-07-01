@@ -37,7 +37,7 @@ object HCBle {
     private val handler = Handler()
     private lateinit var scanHandler: BleScanHandler
 
-    private lateinit var gettService: GATTService
+    private lateinit var gattService: GATTService
 
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
@@ -90,6 +90,14 @@ object HCBle {
             scanning = false
             bluetoothLeScanner.stopScan(scanHandler.leScanCallback)
         }
+    }
+
+    fun getSelService(): BluetoothGattService {
+        return gattService.selService
+    }
+
+    fun getSelCharacteristic(): BluetoothGattCharacteristic {
+        return gattService.selCharacteristic
     }
 
     /**
@@ -151,7 +159,7 @@ object HCBle {
                     Log.d(TAG_GATT_SERVICE, "onServicesDiscovered: $status")
 
                     gatt?.services?.let {
-                        gettService.setGattServiceList(it)
+                        gattService.setGattServiceList(it)
 
                     } ?: run {
                         Log.e(TAG_GATT_SERVICE, "onServicesDiscovered: gatt.services is null")
@@ -200,7 +208,7 @@ object HCBle {
             }
         })
 
-        gettService = GATTService(bluetoothGatt)
+        gattService = GATTService(bluetoothGatt)
     }
 
     /**
@@ -223,7 +231,7 @@ object HCBle {
      * @return
      */
     fun getGattServiceList(): List<BluetoothGattService> {
-        return gettService.getGattServiceList()
+        return gattService.getGattServiceList()
     }
 
     /**
@@ -232,7 +240,7 @@ object HCBle {
      * @param uuid
      */
     fun setServiceUUID(uuid: String) {
-        gettService.setServiceUUID(uuid)
+        gattService.setServiceUUID(uuid)
     }
 
     /**
@@ -241,7 +249,7 @@ object HCBle {
      * @param characteristicUUID
      */
     fun setCharacteristicUUID(characteristicUUID: String) {
-        gettService.setCharacteristicUUID(characteristicUUID)
+        gattService.setCharacteristicUUID(characteristicUUID)
     }
 
     /**
@@ -249,7 +257,7 @@ object HCBle {
      * setCharacteristicUUID로 설정된 캐릭터리스틱을 읽습니다.
      */
     fun readCharacteristic() {
-        gettService.readCharacteristic()
+        gattService.readCharacteristic()
     }
 
     /**
@@ -258,7 +266,7 @@ object HCBle {
      * @param data
      */
     fun writeCharacteristic(data: ByteArray) {
-        gettService.writeCharacteristic(data)
+        gattService.writeCharacteristic(data)
     }
 
     /**
@@ -267,7 +275,7 @@ object HCBle {
      * @param isEnable
      */
     fun setCharacteristicNotification(isEnable: Boolean) {
-        gettService.setCharacteristicNotification(isEnable)
+        gattService.setCharacteristicNotification(isEnable)
     }
 
 

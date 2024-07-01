@@ -81,7 +81,7 @@ fun DeviceDetailScreen(
                 .padding(innerPadding)
         ) {
             scanViewModel.selDevice
-            DeviceDetailContent(scanViewModel)
+            DeviceDetailContent(scanViewModel, navController)
         }
     }
 }
@@ -197,7 +197,7 @@ private fun LoadingLottie() {
     val progress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever,
-        clipSpec = LottieClipSpec.Progress(0f, 1f)
+        clipSpec = LottieClipSpec.Progress(0.2f, 1f)
     )
     LottieAnimation(
         composition = composition,
@@ -206,8 +206,10 @@ private fun LoadingLottie() {
 }
 
 @Composable
-@Preview
-fun DeviceDetailContent(scanViewModel: ScanListViewModel = viewModel()) {
+fun DeviceDetailContent(
+    scanViewModel: ScanListViewModel = viewModel(),
+    naviController: NavController
+) {
     val device = scanViewModel.selDevice.value
     Column {
         Card(
@@ -235,14 +237,19 @@ fun DeviceDetailContent(scanViewModel: ScanListViewModel = viewModel()) {
         if (scanViewModel.isBonded.intValue == BLEState.BOND_BONDED &&
             scanViewModel.isGattConnected.intValue == BLEState.GATT_SUCCESS
         ) {
-            GattServiceList(HCBle.getGattServiceList())
+            GattServiceList(
+                HCBle.getGattServiceList(),
+                naviController = naviController
+            )
         }
     }
 }
 
 @Composable
+@Preview
 fun GattServiceList(
-    gattServiceList: List<BluetoothGattService>
+    gattServiceList: List<BluetoothGattService>,
+    naviController: NavController
 ) {
     var expandedServiceUuid by remember { mutableStateOf<String?>(null) }
 
@@ -277,13 +284,13 @@ fun GattServiceList(
                                     .padding(start = 16.dp, top = 4.dp)
                                     .weight(5f)
                                     .clickable {
-                                        HCBle.setCharacteristicUUID(characteristic.uuid.toString())
+
                                     }
                             )
                             IconButton(
                                 onClick = {
-                                    HCBle.setCharacteristicNotification(true)
-
+                                    HCBle.setCharacteristicUUID(characteristic.uuid.toString())
+                                    naviController.navigate("characteristicDetail")
                                 }, modifier = Modifier.weight(1f)
                             ) {
                                 Icon(
