@@ -1,7 +1,5 @@
 package kr.co.hconnect.bluetoothlib_android.view.characteristic_detail
 
-import android.bluetooth.BluetoothGattCharacteristic
-import android.net.wifi.aware.Characteristics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -20,10 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kr.co.hconnect.bluetoothlib.HCBle
 
 @Composable
-fun CharacteristicDetail(navController: NavController, characteristics: BluetoothGattCharacteristic) {
+fun CharacteristicDetail(navController: NavController) {
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
@@ -60,5 +57,5 @@ fun CharacteristicDetail(navController: NavController, characteristics: Bluetoot
 @Preview
 @Composable
 fun CharacteristicDetailPreview() {
-    CharacteristicDetail(navController = rememberNavController(), HCBle.getSelCharacteristic())
+    CharacteristicDetail(navController = rememberNavController())
 }

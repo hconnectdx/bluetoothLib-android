@@ -1,16 +1,16 @@
 package kr.co.hconnect.permissionlib
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 
 object PermissionManager {
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var resultCallback: (permissions: Map<String, Boolean>) -> Unit
 
     fun registerPermissionLauncher(
-        activity: AppCompatActivity
+        activity: ComponentActivity
     ) {
         permissionLauncher =
             activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->

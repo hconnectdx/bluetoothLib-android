@@ -18,6 +18,12 @@ import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import kr.co.hconnect.bluetoothlib.gatt.BLEState
 import kr.co.hconnect.bluetoothlib.gatt.GATTService
 import kr.co.hconnect.bluetoothlib.scan.BleScanHandler
@@ -41,6 +47,7 @@ object HCBle {
 
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
+    private var scanJob: Job? = null
 
     /**
      * TODO: BLE를 초기화합니다.
@@ -64,26 +71,39 @@ object HCBle {
      * TODO: BLE 스캔을 시작합니다
      * @param onScanResult
      */
-    fun scanLeDevice(onScanResult: (ScanResult) -> Unit) {
-        scanHandler = BleScanHandler { result ->
-            onScanResult(result)
-        }
-        if (!scanning) { // Stops scanning after a pre-defined scan period.
-            handler.postDelayed({
-                scanning = false
-                bluetoothLeScanner.stopScan(scanHandler.leScanCallback)
-            }, SCAN_PERIOD)
-            scanning = true
-            bluetoothLeScanner.startScan(scanHandler.leScanCallback)
+    fun scanLeDevice(scanPeriod: Long = SCAN_PERIOD, onScanResult: (ScanResult) -> Unit) {
+        val scanHandler = BleScanHandler(onScanResult)
+
+        if (!scanning) {
+            scanJob = CoroutineScope(Dispatchers.Main).launch {
+                scanning = true
+                bluetoothLeScanner.startScan(scanHandler.leScanCallback)
+
+                try {
+                    withTimeout(scanPeriod) {
+                        suspendCancellableCoroutine<Unit> { continuation ->
+                            continuation.invokeOnCancellation {
+                                Log.d(TAG, "scanLeDevice: Canceled")
+                                scanning = false
+                                bluetoothLeScanner.stopScan(scanHandler.leScanCallback)
+                            }
+                        }
+                    }
+                } finally {
+                    Log.d(TAG, "scanLeDevice: Canceled finnaly")
+                    scanning = false
+                    bluetoothLeScanner.stopScan(scanHandler.leScanCallback)
+                }
+            }
         } else {
             scanning = false
+            scanJob?.cancel()
             bluetoothLeScanner.stopScan(scanHandler.leScanCallback)
         }
     }
 
     /**
      * TODO: 스캔을 중지합니다.
-     *
      */
     fun scanStop() {
         if (scanning) {
