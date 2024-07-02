@@ -16,7 +16,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +71,7 @@ object HCBle {
      * @param onScanResult
      */
     fun scanLeDevice(scanPeriod: Long = SCAN_PERIOD, onScanResult: (ScanResult) -> Unit) {
-        val scanHandler = BleScanHandler(onScanResult)
+        scanHandler = BleScanHandler(onScanResult)
 
         if (!scanning) {
             scanJob = CoroutineScope(Dispatchers.Main).launch {
@@ -235,14 +234,21 @@ object HCBle {
      * TODO: 디바이스와 연결을 해제합니다.
      * @param callback
      */
-    fun disconnect(callback: () -> Unit) {
+    fun disconnect(callback: (() -> Unit)? = null) {
         Log.d(TAG, "Disconnecting from device")
         bluetoothGatt.disconnect()
-        Handler(Looper.getMainLooper()).postDelayed({
-            bluetoothGatt.close()
-            callback.invoke()
-            Log.d(TAG, "Closed GATT")
-        }, 100)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            withTimeout(100) {
+                suspendCancellableCoroutine<Unit> { continuation ->
+                    continuation.invokeOnCancellation {
+                        Log.d(TAG, "disconnect: Canceled")
+                        bluetoothGatt.close()
+                        callback?.invoke()
+                    }
+                }
+            }
+        }
     }
 
     /**
