@@ -328,5 +328,9 @@ object HCBle {
         gattService.readCharacteristicNotification()
     }
 
+    fun getBondedDevices(): List<BluetoothDevice> {
+        return bluetoothAdapter.bondedDevices.toList()
+    }
+
 
 }

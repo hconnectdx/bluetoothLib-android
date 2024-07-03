@@ -1,7 +1,7 @@
 package kr.co.hconnect.bluetoothlib_android.view.main
 
 import android.annotation.SuppressLint
-import android.bluetooth.le.ScanResult
+import android.bluetooth.BluetoothDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,48 +17,45 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kr.co.hconnect.bluetoothlib.HCBle
+import kr.co.hconnect.bluetoothlib_android.viewmodel.BondedDevicesViewModel
 import kr.co.hconnect.bluetoothlib_android.viewmodel.DeviceViewModel
-import kr.co.hconnect.bluetoothlib_android.viewmodel.ScanListViewModel
 
 @Composable
-fun ScanList(
-    scanViewModel: ScanListViewModel = viewModel(),
+fun BondedList(
+    bondedDeviceViewModel: BondedDevicesViewModel = viewModel(),
     deviceViewModel: DeviceViewModel = viewModel(),
     navController: NavController
 ) {
-    val scanList = scanViewModel.scanList
+    val bondedList = bondedDeviceViewModel.bondedDevices
     LazyColumn(contentPadding = PaddingValues(horizontal = 15.dp)) {
-        items(scanList.size) { index ->
-            ListItem(
-                selItem = scanList[index],
-                deviceViewModel = deviceViewModel,
-                navController = navController,
+        items(bondedList.value.size) { index ->
+            BondedItem(
+                device = bondedList.value[index],
+                onClick = {
+                    deviceViewModel.device.value = bondedList.value[index]
+                    HCBle.scanStop()
+                    navController.navigate("detail")
+                }
             )
         }
-    }
-    LazyColumn {
-
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun ListItem(
-    selItem: ScanResult,
-    deviceViewModel: DeviceViewModel,
-    navController: NavController
+fun BondedItem(
+    device: BluetoothDevice,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .background(Color.Cyan)
             .clickable {
-                deviceViewModel.device.value = selItem.device
-                HCBle.scanStop()
-                navController.navigate("detail")
+                onClick()
             },
     ) {
         Text(
-            text = selItem.device.name ?: "Unknown Device",
+            text = device.name ?: "Unknown Device",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)

@@ -19,13 +19,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kr.co.hconnect.bluetoothlib.HCBle
 import kr.co.hconnect.bluetoothlib_android.model.Permissions
+import kr.co.hconnect.bluetoothlib_android.viewmodel.BondedDevicesViewModel
+import kr.co.hconnect.bluetoothlib_android.viewmodel.DeviceViewModel
 import kr.co.hconnect.bluetoothlib_android.viewmodel.ScanListViewModel
 import kr.co.hconnect.permissionlib.PermissionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun HomeScreen(navController: NavController, scanViewModel: ScanListViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    scanViewModel: ScanListViewModel = viewModel(),
+    deviceViewModel: DeviceViewModel = viewModel(),
+    bondedDevicesViewModel: BondedDevicesViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = {
@@ -41,7 +48,16 @@ fun HomeScreen(navController: NavController, scanViewModel: ScanListViewModel = 
             ) {
                 Greeting("블루투스 테스트 앱")
                 ScanButton(scanViewModel)
-                ScanList(scanViewModel, navController)
+                BondedList(
+                    bondedDeviceViewModel = bondedDevicesViewModel,
+                    deviceViewModel = deviceViewModel,
+                    navController = navController
+                )
+                ScanList(
+                    scanViewModel = scanViewModel,
+                    deviceViewModel = deviceViewModel,
+                    navController = navController
+                )
             }
         }
     )

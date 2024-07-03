@@ -25,10 +25,6 @@ import kr.co.hconnect.bluetoothlib.HCBle
 @Composable
 fun CharacteristicDetail(navController: NavController) {
 
-    LaunchedEffect(key1 = Unit) {
-        HCBle.readCharacteristicNotification()
-    }
-
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)

@@ -2,7 +2,6 @@ package kr.co.hconnect.bluetoothlib_android.view
 
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothProfile
-import android.bluetooth.le.ScanResult
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -47,13 +45,13 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hconnect.bluetoothlib.HCBle
 import kr.co.hconnect.bluetoothlib.gatt.BLEState
 import kr.co.hconnect.bluetoothlib_android.R
-import kr.co.hconnect.bluetoothlib_android.viewmodel.ScanListViewModel
+import kr.co.hconnect.bluetoothlib_android.viewmodel.DeviceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceDetailScreen(
     navController: NavController,
-    scanViewModel: ScanListViewModel = viewModel()
+    deviceViewModel: DeviceViewModel = viewModel()
 ) {
     Scaffold(
         topBar = {
@@ -68,7 +66,7 @@ fun DeviceDetailScreen(
                     }
                 },
                 actions = {
-                    ConnectButton(scanViewModel)
+                    ConnectButton(deviceViewModel)
                 }
 
             )
@@ -79,48 +77,49 @@ fun DeviceDetailScreen(
                 .background(Color.White)
                 .padding(innerPadding)
         ) {
-            scanViewModel.selDevice
-            DeviceDetailContent(scanViewModel, navController)
+            deviceViewModel.device.value
+            DeviceDetailContent(deviceViewModel, navController)
         }
     }
 }
 
 
 @Composable
-private fun ConnectButton(scanViewModel: ScanListViewModel) {
+private fun ConnectButton(deviceViewModel: DeviceViewModel) {
     IconButton(onClick = {
-        scanViewModel.isBonded.let {
+        deviceViewModel.isBonded.let {
             val state = it.intValue
             when (state) {
                 BLEState.BOND_BONDED -> {
                     Log.d("GATTService", "Disconnect")
                     HCBle.disconnect {
-                        scanViewModel.isBonded.intValue = BLEState.BOND_NONE
-                        scanViewModel.connectState.intValue = BLEState.STATE_DISCONNECTED
-                        scanViewModel.isGattConnected.intValue = BLEState.GATT_FAILURE
+                        deviceViewModel.apply {
+                            isBonded.intValue = BLEState.BOND_NONE
+                            connectState.intValue = BLEState.STATE_DISCONNECTED
+                            isGattConnected.intValue = BLEState.GATT_FAILURE
+                        }
                     }
                 }
 
                 else -> {
                     Log.d("GATTService", "Connect")
-                    scanViewModel.selDevice.value?.let { it1 -> connect(it1, scanViewModel) }
+                    connect(deviceViewModel)
                 }
             }
 
         }
     }) {
-        val connState = scanViewModel.connectState.intValue
-        val bondedState = scanViewModel.isBonded.intValue
+        val connState = deviceViewModel.connectState.intValue
+        val bondedState = deviceViewModel.isBonded.intValue
         BLEConnStateIcon(bondedState, connState)
     }
 }
 
 private fun connect(
-    it: ScanResult,
-    scanViewModel: ScanListViewModel
+    deviceViewModel: DeviceViewModel
 ) {
     HCBle.connectToDevice(
-        it.device,
+        deviceViewModel.device.value!!,
         onConnState = { newState ->
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
@@ -139,14 +138,14 @@ private fun connect(
                     Log.d("GATTService", "STATE_DISCONNECTED")
                 }
             }
-            scanViewModel.connectState.intValue = newState
+            deviceViewModel.connectState.intValue = newState
         },
         onGattServiceState = { it ->
             Log.d("GATTService", "onGattServiceState: $it")
-            scanViewModel.isGattConnected.intValue = it
+            deviceViewModel.isGattConnected.intValue = it
         },
         onBondState = { bondedState ->
-            scanViewModel.isBonded.intValue = bondedState
+            deviceViewModel.isBonded.intValue = bondedState
         },
         onSubscriptionState = { state ->
             Log.d("GATTService", "onSubscriptionState: $state")
@@ -209,10 +208,10 @@ private fun LoadingLottie() {
 
 @Composable
 fun DeviceDetailContent(
-    scanViewModel: ScanListViewModel = viewModel(),
+    deviceViewModel: DeviceViewModel = viewModel(),
     naviController: NavController
 ) {
-    val device = scanViewModel.selDevice.value
+    val device = deviceViewModel.device.value
     Column {
         Card(
             modifier = Modifier
@@ -226,18 +225,18 @@ fun DeviceDetailContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Device Name: ${device?.scanRecord?.deviceName ?: "Unknown"}",
+                    text = "Device Name: ${device?.name ?: "Unknown"}",
                     fontWeight = FontWeight.Bold
                 )
-                Text(text = "Device Address: ${device?.device?.address}")
+                Text(text = "Device Address: ${device?.address}")
 
             }
         }
 
         HorizontalDivider(Modifier.padding(16.dp))
 
-        if (scanViewModel.isBonded.intValue == BLEState.BOND_BONDED &&
-            scanViewModel.isGattConnected.intValue == BLEState.GATT_SUCCESS
+        if (deviceViewModel.isBonded.intValue == BLEState.BOND_BONDED &&
+            deviceViewModel.isGattConnected.intValue == BLEState.GATT_SUCCESS
         ) {
             GattServiceList(
                 HCBle.getGattServiceList(),
@@ -248,7 +247,6 @@ fun DeviceDetailContent(
 }
 
 @Composable
-@Preview
 fun GattServiceList(
     gattServiceList: List<BluetoothGattService>,
     naviController: NavController
