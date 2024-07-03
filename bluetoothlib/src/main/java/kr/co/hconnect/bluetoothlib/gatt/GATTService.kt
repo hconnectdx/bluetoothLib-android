@@ -15,7 +15,7 @@ class GATTService(private val bluetoothGatt: BluetoothGatt) {
     private lateinit var _selService: BluetoothGattService
     val selService: BluetoothGattService
         get() = _selService
-    
+
     private lateinit var _selCharacteristic: BluetoothGattCharacteristic
     val selCharacteristic: BluetoothGattCharacteristic
         get() = _selCharacteristic
@@ -108,5 +108,11 @@ class GATTService(private val bluetoothGatt: BluetoothGatt) {
             }
             bluetoothGatt.writeDescriptor(descriptor)
         }
+    }
+
+    fun readCharacteristicNotification() {
+        val descriptor =
+            _selCharacteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+        bluetoothGatt.readDescriptor(descriptor)
     }
 }

@@ -1,5 +1,6 @@
 package kr.co.hconnect.bluetoothlib_android.view.characteristic_detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -14,13 +15,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kr.co.hconnect.bluetoothlib.HCBle
 
 @Composable
 fun CharacteristicDetail(navController: NavController) {
+
+    LaunchedEffect(key1 = Unit) {
+        HCBle.readCharacteristicNotification()
+    }
+
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +50,12 @@ fun CharacteristicDetail(navController: NavController) {
         },
         content = {
             Column(Modifier.padding(it)) {
-                Card(modifier = Modifier.padding(it)) {
+                Card(modifier = Modifier
+                    .padding(it)
+                    .clickable {
+                        HCBle.setCharacteristicNotification(true)
+                    }
+                ) {
                     Row {
 //                        HCBle.getSelCharacteristic()
                         Text(text = "Notify")

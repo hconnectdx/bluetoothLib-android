@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
@@ -133,6 +134,7 @@ object HCBle {
         onConnState: (state: Int) -> Unit,
         onGattServiceState: (state: Int) -> Unit,
         onBondState: (state: Int) -> Unit,
+        onSubscriptionState: (state: Boolean) -> Unit,
         onReceive: (characteristic: BluetoothGattCharacteristic) -> Unit
     ) {
         onBondState.invoke(device.bondState)
@@ -225,6 +227,24 @@ object HCBle {
                 Log.d(TAG_GATT_SERVICE, "onCharacteristicChanged: ${characteristic?.value}")
                 onReceive.invoke(characteristic!!)
             }
+
+            override fun onDescriptorWrite(
+                gatt: BluetoothGatt?,
+                descriptor: BluetoothGattDescriptor?,
+                status: Int
+            ) {
+                super.onDescriptorWrite(gatt, descriptor, status)
+                onSubscriptionState.invoke(status == BluetoothGatt.GATT_SUCCESS)
+            }
+
+            override fun onDescriptorRead(
+                gatt: BluetoothGatt,
+                descriptor: BluetoothGattDescriptor,
+                status: Int,
+                value: ByteArray
+            ) {
+                super.onDescriptorRead(gatt, descriptor, status, value)
+            }
         })
 
         gattService = GATTService(bluetoothGatt)
@@ -302,6 +322,10 @@ object HCBle {
      */
     fun setCharacteristicNotification(isEnable: Boolean) {
         gattService.setCharacteristicNotification(isEnable)
+    }
+
+    fun readCharacteristicNotification() {
+        gattService.readCharacteristicNotification()
     }
 
 
