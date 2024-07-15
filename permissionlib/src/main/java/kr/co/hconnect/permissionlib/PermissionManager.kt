@@ -1,5 +1,7 @@
 package kr.co.hconnect.permissionlib
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -33,5 +35,11 @@ object PermissionManager {
     ) {
         this.resultCallback = resultCallback
         permissionLauncher.launch(permissions)
+    }
+
+    fun isGrantedPermissions(context: Context, permissions: Array<String>): Boolean {
+        return permissions.all { permission ->
+            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }
